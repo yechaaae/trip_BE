@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.enjoytrip.mapper.UserMapper">
+
+	<insert id ="joinUser" parameterType="com.ssafy.enjoytrip.dto.UserDto">
+		INSERT INTO user (user_id, password, email,nickname, phone_number,birth_date,sex,created_at)
+		VALUES (#{userId}, #{password}, #{email}, #{nickName}, #{phoneNumber}, #{birthDate}, #{sex}, now())
+	
+	</insert>
+
+	<!-- 로그인에 성공하면 세션에 저장하기 위해 유저 정보를 다 가져옴, 안 그러면 그냥 로그인 성공함이라는 사실만 알게되니 -->
+	<select id = "loginUser" resultType="com.ssafy.enjoytrip.dto.UserDto">
+		SELECT mno, user_id, email, nickname, phone_number, birth_date,sex,created_at
+		From user
+		Where user_id = #{userId} AND password = #{password}
+		
+	</select>
+
+
+	<select id="idCheck" parameterType="String" resultType="int">
+		SELECT count(user_id)
+		  FROM user
+		 WHERE user_id = #{userId}
+	</select>
+
+
+</mapper>
