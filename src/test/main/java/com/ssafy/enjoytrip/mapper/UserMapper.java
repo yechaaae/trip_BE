@@ -23,4 +23,13 @@ public interface UserMapper {
 
 	// 3. 아이디 중복 체크
 	int idCheck(String userId) throws SQLException;
+	
+	// 4. 회원 정보 조회
+	UserDto selectUserByUserId(String userId) throws SQLException;
+	
+	// 5. 회원 정보 수정
+	int updateUser(UserDto userDto) throws SQLException; // nickname, email, birthe 등 정보 수정
+	
+	// 6. 회원 탈퇴
+	int deleteUser(String userId) throws SQLException;
 }

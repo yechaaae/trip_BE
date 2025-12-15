@@ -1,11 +1,16 @@
 package com.ssafy.enjoytrip.service;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.ssafy.enjoytrip.dto.AttractionDto;
+import com.ssafy.enjoytrip.dto.PageResponse;
+
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AttractionServiceImpl implements AttractionService {
-
+	
+	
+	
 	@Value("${TOUR_CATEGORY_CODE_URL}")
 	private String tourCategoryCodeUrl;
 	
@@ -70,15 +77,21 @@ public class AttractionServiceImpl implements AttractionService {
 
     // 1. 지역 기반 관광지 목록 조회
     @Override
-    public String getAreaBasedList(String areaCode, String contentTypeId) throws Exception {
+    public String getAreaBasedList(String areaCode, String contentTypeId, String pageNo) throws Exception { // ★ 파라미터 받기
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(tourAreaBasedListUrl)
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("MobileOS", "WEB")
                 .queryParam("MobileApp", "EnjoyTrip")
                 .queryParam("_type", "json")
-                .queryParam("numOfRows", "20")
-                .queryParam("pageNo", "1")
-                .queryParam("arrange", "A"); // (A=제목순)
+                .queryParam("numOfRows", "20") // 20개씩 가져오기 (Vue랑 맞춤)
+                .queryParam("arrange", "A");
+
+        // ★★★ 여기가 문제였습니다! (기존 "1" -> 변수 pageNo 로 변경) ★★★
+        if (pageNo != null && !pageNo.isEmpty()) {
+            builder.queryParam("pageNo", pageNo);
+        } else {
+            builder.queryParam("pageNo", "1");
+        }
 
         if (areaCode != null && !areaCode.isEmpty()) {
             builder.queryParam("areaCode", areaCode);
@@ -122,17 +135,14 @@ public class AttractionServiceImpl implements AttractionService {
                 .queryParam("MobileApp", "EnjoyTrip")
                 .queryParam("_type", "json")
                 .queryParam("contentId", contentId);
-//                .queryParam("defaultYN", "Y")
-//                .queryParam("firstImageYN", "Y")
-//                .queryParam("mapinfoYN", "Y")
-//                .queryParam("overviewYN", "Y");
+                // ★ 중요: 아래 YN 파라미터가 없으면 좌표와 설명이 안 옵니다!
+                
 
-        URI uri = builder.build().encode().toUri();
+        URI uri = builder.build(true).toUri();
         log.debug("TourAPI [detailCommon] 요청 URL: {}", uri);
 
         return new RestTemplate().getForObject(uri, String.class);
     }
-
 
     // 4. 소개 정보 조회
     @Override
@@ -494,7 +504,9 @@ public class AttractionServiceImpl implements AttractionService {
 	    RestTemplate restTemplate = new RestTemplate();
 	    return restTemplate.getForObject(uri, String.class);
 	}
-
+	
+	
+	
 
 	
 

@@ -18,7 +18,7 @@ public class UserDto {
 	private String birthDate; // 생년월일 "1999-01-01" 형식 준수
 	private String sex; // M 남자, F 여자 + 추후 매칭 서비스나 확장성 위해
 	private String createdAt; // 가입 날짜
-	
+	private String profileImg;
 	// 선택 사항 (관리자 일반 유저 구분)
 	// private int role; // 0: 일반, 1: 관리자
 }

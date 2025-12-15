@@ -13,5 +13,13 @@ public interface UserService {
 		
 		// 3. 아이디 중복 체크
 		int idCheck(String userId) throws Exception;
+		
+		// 4. 회원 정보 조회
+	    UserDto getUserInfo(String userId) throws Exception;
+		// 5. 회원 정보 수정
+	    int modifyUser(UserDto userDto) throws Exception;
+		
+		// 6. 회원 탈퇴
+		int withdrawUser(String userId) throws Exception;
 	
 }

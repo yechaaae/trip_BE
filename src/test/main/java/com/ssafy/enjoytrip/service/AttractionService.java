@@ -1,5 +1,8 @@
 package com.ssafy.enjoytrip.service;
 
+import com.ssafy.enjoytrip.dto.AttractionDto;
+import com.ssafy.enjoytrip.dto.PageResponse;
+
 public interface AttractionService {
 	
 	/**
@@ -7,7 +10,7 @@ public interface AttractionService {
 	 * @param areaCode 지역 코드 (서울=1, 등)
 	 * @param contentTypeId 관광지 타입 (12=관광지, 39=음식점 등)
 	 */
-	String getAreaBasedList(String areaCode, String contentTypeId) throws Exception;
+	String getAreaBasedList(String areaCode, String contentTypeId, String pageNo) throws Exception;
 	
 	/**
 	 * 2. 지역 코드 조회 (시도 / 구군)
@@ -117,6 +120,8 @@ public interface AttractionService {
             String mapY
     ) throws Exception;
     
+    
+   
 }
 
 /* [참고] 지역 코드(areaCode) 매핑 테이블
@@ -139,5 +144,5 @@ public interface AttractionService {
 	17 : 제주특별자치도
 	31 : 경기도 (일부 API)
 	32 : 강원도 (일부 API)
-	(주의: API 버전(KorService1/2)에 따라 경기도가 31번, 강원도가 32번일 수 있으니 getAreaCode로 확인 필요)
+	
 */

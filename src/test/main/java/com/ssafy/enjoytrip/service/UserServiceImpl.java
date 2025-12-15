@@ -32,5 +32,24 @@ public class UserServiceImpl implements UserService{
 		// 0이면 사용 가능, 1이면 중복
 		return userMapper.idCheck(userId);
 	}
+	
+	@Override
+    public UserDto getUserInfo(String userId) throws Exception {
+        return userMapper.selectUserByUserId(userId);
+    }
+
+	@Override
+	@Transactional
+	public int modifyUser(UserDto userDto) throws Exception {
+		// TODO: 비밀번호 변경 등 민감한 정보 수정 시 현재 비밀번호 확인 로직 등을 추가해야 합니다.
+        // 현재는 닉네임, 이메일, 생년월일 등의 정보만 UserDto에 담겨 넘어온다고 가정합니다.
+		return userMapper.updateUser(userDto);
+	}
+
+	@Override
+	@Transactional
+	public int withdrawUser(String userId) throws Exception {
+		return userMapper.deleteUser(userId);
+	}
 
 }
