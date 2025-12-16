@@ -37,19 +37,27 @@ public class AttractionRestController {
 	
 	@GetMapping("/list")
 	public ResponseEntity<?> getAreaBasedList(
-	        @RequestParam(value= "areaCode", required = false) String areaCode,
+	        @RequestParam(value = "areaCode", required = false) String areaCode,
 	        @RequestParam(value = "contentTypeId", required = false) String contentTypeId,
-	        @RequestParam(value = "pageNo", defaultValue = "1") String pageNo) { // ★ pageNo 추가
+	        @RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
+	        @RequestParam(value = "numOfRows", defaultValue = "12") int numOfRows
+	) {
+	    log.info("[list] 목록 조회 - area: {}, type: {}, page: {}, size: {}",
+	            areaCode, contentTypeId, pageNo, numOfRows);
 
-	    log.info("[list] 목록 조회 - area: {}, type: {}, page: {}", areaCode, contentTypeId, pageNo);
 	    try {
-	        // 서비스에 pageNo도 같이 전달!
-	        String result = attractionService.getAreaBasedList(areaCode, contentTypeId, pageNo);
+	        String result = attractionService.getAreaBasedList(
+	                areaCode,
+	                contentTypeId,
+	                pageNo,
+	                numOfRows
+	        );
 	        return makeResponse(result);
-	    } catch(Exception e) {
+	    } catch (Exception e) {
 	        return exceptionHandling(e);
 	    }
 	}
+
 	// 2. 지역 코드 조회
 	@GetMapping("/area")
 	public ResponseEntity<?> getAreaCode(@RequestParam(value= "areaCode", required = false) String areaCode) {

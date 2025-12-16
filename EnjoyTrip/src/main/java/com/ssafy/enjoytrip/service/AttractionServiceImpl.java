@@ -77,30 +77,32 @@ public class AttractionServiceImpl implements AttractionService {
 
     // 1. 지역 기반 관광지 목록 조회
     @Override
-    public String getAreaBasedList(String areaCode, String contentTypeId, String pageNo) throws Exception { // ★ 파라미터 받기
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(tourAreaBasedListUrl)
+    public String getAreaBasedList(
+            String areaCode,
+            String contentTypeId,
+            int pageNo,
+            int numOfRows
+    ) throws Exception {
+
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(tourAreaBasedListUrl)
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("MobileOS", "WEB")
                 .queryParam("MobileApp", "EnjoyTrip")
                 .queryParam("_type", "json")
-                .queryParam("numOfRows", "20") // 20개씩 가져오기 (Vue랑 맞춤)
-                .queryParam("arrange", "A");
+                .queryParam("arrange", "A")
+                .queryParam("pageNo", pageNo)          
+                .queryParam("numOfRows", numOfRows); 
 
-        // ★★★ 여기가 문제였습니다! (기존 "1" -> 변수 pageNo 로 변경) ★★★
-        if (pageNo != null && !pageNo.isEmpty()) {
-            builder.queryParam("pageNo", pageNo);
-        } else {
-            builder.queryParam("pageNo", "1");
-        }
-
-        if (areaCode != null && !areaCode.isEmpty()) {
+        if (areaCode != null && !areaCode.isBlank()) {
             builder.queryParam("areaCode", areaCode);
         }
-        if (contentTypeId != null && !contentTypeId.isEmpty()) {
+
+        if (contentTypeId != null && !contentTypeId.isBlank()) {
             builder.queryParam("contentTypeId", contentTypeId);
         }
 
-        URI uri = builder.build().encode().toUri();
+        URI uri = builder.build(true).toUri(); // encode 포함
         log.debug("TourAPI [areaBasedList] 요청 URL: {}", uri);
 
         return new RestTemplate().getForObject(uri, String.class);

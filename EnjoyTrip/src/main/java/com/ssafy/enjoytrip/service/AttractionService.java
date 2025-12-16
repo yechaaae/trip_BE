@@ -6,11 +6,19 @@ import com.ssafy.enjoytrip.dto.PageResponse;
 public interface AttractionService {
 	
 	/**
-	 * 1. 지역 기반 관광지 목록 조회
-	 * @param areaCode 지역 코드 (서울=1, 등)
-	 * @param contentTypeId 관광지 타입 (12=관광지, 39=음식점 등)
-	 */
-	String getAreaBasedList(String areaCode, String contentTypeId, String pageNo) throws Exception;
+     * 지역 기반 관광지 목록 조회
+     *
+     * @param areaCode 지역 코드
+     * @param contentTypeId 관광지 타입
+     * @param pageNo 페이지 번호
+     * @param numOfRows 페이지당 개수
+     */
+    String getAreaBasedList(
+        String areaCode,
+        String contentTypeId,
+        int pageNo,
+        int numOfRows
+    ) throws Exception;
 	
 	/**
 	 * 2. 지역 코드 조회 (시도 / 구군)
