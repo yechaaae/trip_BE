@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.enjoytrip.mapper.BoardMapper">
+
+	<insert id="writeArticle" parameterType="boardDto">
+        INSERT INTO board (user_id, title, content, rating, original_file, save_file)
+        VALUES (#{userId}, #{title}, #{content}, #{rating}, #{originalFile}, #{saveFile})
+    </insert>
+
+	<select id="listArticle" resultType="boardDto">
+        SELECT * FROM board ORDER BY board_id DESC
+    </select>
+
+	<select id="getArticle" parameterType="int" resultType="boardDto">
+        SELECT * FROM board WHERE board_id = #{boardId}
+    </select>
+    
+    <update id="updateHit" parameterType="int">
+        UPDATE board
+        SET hit = hit + 1
+        WHERE board_id = #{boardId}
+    </update>
+    
+    <update id="modifyArticle" parameterType="boardDto">
+    	UPDATE board
+    	SET title = #{title},
+    		content = #{content},
+    		rating = #{rating}
+    		<if test="originalFile != null and originalFile != ''">
+    			, original_file = #{originalFile}
+    			, save_file = #{saveFile}
+    		</if>
+    	WHERE board_id = #{boardId}
+    </update>
+    
+    <delete id="deleteArticle" parameterType="int">
+    	DELETE FROM board
+    	WHERE board_id = #{boardId}
+    </delete>
+
+</mapper>
