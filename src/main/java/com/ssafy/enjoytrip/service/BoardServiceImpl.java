@@ -1,5 +1,6 @@
 package com.ssafy.enjoytrip.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,5 +55,16 @@ public class BoardServiceImpl implements BoardService {
         boardMapper.deleteArticle(boardId);
     }
 
+    @Override
+    public Map<String, Object> getReviewStats(int contentId) {
+        Map<String, Object> stats = boardMapper.getReviewStats(contentId);
+
+        // 혹시 null로 넘어오는 케이스 방어 (리뷰 0개면 avg가 null일 수 있음)
+        if (stats == null) stats = new HashMap<>();
+        if (stats.get("reviewCount") == null) stats.put("reviewCount", 0);
+        if (stats.get("avgRating") == null) stats.put("avgRating", 0);
+
+        return stats;
+    }
 	
 }

@@ -42,44 +42,58 @@ public class BoardController {
     @PostMapping
     public ResponseEntity<?> write(
             @RequestPart("boardDto") BoardDto boardDto,
+            @RequestParam(value = "contentId", required = false) Integer contentId,
             @RequestPart(value = "file", required = false) MultipartFile file,
             HttpSession session) {
-        
-        // 🔹 try 문을 여기서 시작해야 합니다.
+
         try {
-            // 1. 세션 체크
+            // 1. 로그인 체크
             UserDto userDto = (UserDto) session.getAttribute("userInfo");
             if (userDto == null) {
-                return new ResponseEntity<String>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
             }
 
-            // 2. ID 세팅
             boardDto.setUserId(userDto.getUserId());
 
-            // 3. 파일 처리 (일단 유지)
+            // 🔥 2. 게시글 타입별 처리
+            if (boardDto.getType() == 2) { // 리뷰
+                if (contentId == null) {
+                    return new ResponseEntity<>("리뷰는 관광지를 반드시 선택해야 합니다.", HttpStatus.BAD_REQUEST);
+                }
+                boardDto.setContentId(contentId);
+            } else {
+                // 자유게시판
+                boardDto.setContentId(null);
+            }
+
+            // 🔍 디버그
+            System.out.println("type = " + boardDto.getType());
+            System.out.println("contentId = " + boardDto.getContentId());
+
+            // 3. 파일 처리
             if (file != null && !file.isEmpty()) {
                 String saveFolder = "C:/ssafy/upload/";
                 String originalFileName = file.getOriginalFilename();
                 String saveFileName = UUID.randomUUID() + "_" + originalFileName;
-                
-                // 폴더가 없으면 에러나므로 안전장치 하나만 추가함
+
                 File folder = new File(saveFolder);
                 if (!folder.exists()) folder.mkdirs();
 
                 file.transferTo(new File(saveFolder + saveFileName));
-                
+
                 boardDto.setOriginalFile(originalFileName);
                 boardDto.setSaveFile(saveFileName);
             }
 
             boardService.writeArticle(boardDto);
-            return new ResponseEntity<Void>(HttpStatus.CREATED);
+            return new ResponseEntity<>(HttpStatus.CREATED);
 
         } catch (Exception e) {
-            e.printStackTrace(); // 서버 콘솔에 에러 찍어보기
-            return new ResponseEntity<String>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     // 2. 목록 조회
     @GetMapping
@@ -141,6 +155,16 @@ public class BoardController {
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
     
+    
+    // 6. 관광지별 리뷰 통계 (리뷰 수 + 평균 별점)
+    @GetMapping("/review/stats/{contentId}")
+    public ResponseEntity<Map<String, Object>> getReviewStats(
+            @PathVariable int contentId) {
+
+        Map<String, Object> stats = boardService.getReviewStats(contentId);
+        return new ResponseEntity<>(stats, HttpStatus.OK);
+    }
+
     
     
 }

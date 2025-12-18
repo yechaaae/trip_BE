@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.ssafy.enjoytrip.dto.BoardDto; // DTO 위치에 맞춰 수정 필요
 
@@ -28,4 +29,8 @@ public interface BoardMapper {
 
     // 6. 글 삭제
     void deleteArticle(int boardId) throws SQLException;
+    
+    //리뷰 별점 
+    Map<String, Object> getReviewStats(@Param("contentId") int contentId);
+
 }
