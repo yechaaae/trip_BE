@@ -21,4 +21,7 @@ public class BoardDto {
     private String nickName;       // 작성자 닉네임 (user 테이블)
     private String attractionTitle;// 관광지 이름 (attractions 테이블)
     private String attractionImg;  // 관광지 이미지 (attractions 테이블)
+
+    private Double latitude;   // 위도
+    private Double longitude;  // 경도
 }
