@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.enjoytrip.mapper.BoardMapper">
+
+	<insert id="writeArticle" parameterType="boardDto">
+        INSERT INTO board (
+            user_id, title, content, rating, type, content_id, 
+            original_file, save_file, regist_date
+        ) VALUES (
+            #{userId}, #{title}, #{content}, #{rating}, #{type}, #{contentId}, 
+            #{originalFile}, #{saveFile}, now()
+        )
+    </insert>
+
+	<select id="listArticle" parameterType="map" resultType="boardDto">
+        SELECT 
+            b.board_id, b.user_id, b.title, b.content, b.rating, b.hit, b.like_count, b.regist_date,
+            b.type, b.save_file,
+            u.nickname,
+            a.title AS attractionTitle,
+            a.first_image AS attractionImg
+        FROM board b
+        LEFT JOIN user u ON b.user_id = u.user_id
+        LEFT JOIN attractions a ON b.content_id = a.content_id
+        <where>
+        	<if test="type != 0">
+                AND b.type = #{type}
+            </if>
+            <if test="word != null and word != ''">
+                AND b.title LIKE CONCAT('%', #{word}, '%')
+            </if>
+        </where>
+        ORDER BY b.board_id DESC
+    </select>
+
+	<select id="getArticle" parameterType="int" resultType="boardDto">
+        SELECT 
+            b.board_id,
+            b.user_id as userId,   b.title,
+            b.content,
+            b.rating,
+            b.hit,
+            b.like_count,
+            b.regist_date,
+            b.type,
+            b.save_file,
+            b.original_file,
+            b.content_id,
+            u.nickname
+            FROM board b
+        LEFT JOIN user u ON b.user_id = u.user_id
+        WHERE b.board_id = #{boardId}
+    </select>
+    
+    <update id="updateHit" parameterType="int">
+        UPDATE board SET hit = hit + 1 WHERE board_id = #{boardId}
+    </update>
+    
+    <update id="modifyArticle" parameterType="boardDto">
+    	UPDATE board
+    	SET title = #{title},
+    		content = #{content},
+    		rating = #{rating}
+    		<if test="originalFile != null and originalFile != ''">
+    			, original_file = #{originalFile}
+    			, save_file = #{saveFile}
+    		</if>
+    	WHERE board_id = #{boardId}
+    </update>
+    
+    <delete id="deleteArticle" parameterType="int">
+    	DELETE FROM board WHERE board_id = #{boardId}
+    </delete>
+
+</mapper>

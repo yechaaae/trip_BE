@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.enjoytrip.mapper.FollowMapper">
+
+    <insert id="follow">
+        INSERT INTO follows (from_user_id, to_user_id)
+        VALUES (#{fromUserId}, #{toUserId})
+    </insert>
+
+    <delete id="unfollow">
+        DELETE FROM follows
+        WHERE from_user_id = #{fromUserId} AND to_user_id = #{toUserId}
+    </delete>
+
+    <select id="selectFollowingList" parameterType="string" resultType="com.ssafy.enjoytrip.dto.UserDto">
+        SELECT u.user_id, u.nickname, u.profile_img, u.introduction
+        FROM follows f
+        JOIN user u ON f.to_user_id = u.user_id
+        WHERE f.from_user_id = #{fromUserId}
+    </select>
+
+    <select id="selectFollowerList" parameterType="string" resultType="com.ssafy.enjoytrip.dto.UserDto">
+        SELECT u.user_id, u.nickname, u.profile_img, u.introduction
+        FROM follows f
+        JOIN user u ON f.from_user_id = u.user_id
+        WHERE f.to_user_id = #{toUserId}
+    </select>
+
+    <select id="countFollowing" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM follows
+        WHERE from_user_id = #{fromUserId}
+    </select>
+
+    <select id="countFollower" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM follows
+        WHERE to_user_id = #{toUserId}
+    </select>
+    
+    <select id="isFollowing" resultType="int">
+        SELECT COUNT(*)
+        FROM follows
+        WHERE from_user_id = #{fromUserId} AND to_user_id = #{toUserId}
+    </select>
+
+</mapper>

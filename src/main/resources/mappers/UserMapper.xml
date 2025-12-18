@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.enjoytrip.mapper.UserMapper">
+    
+    <insert id="joinUser" parameterType="com.ssafy.enjoytrip.dto.UserDto">
+        INSERT INTO user (user_id, password, email, nickname, phone_number, birth_date, sex, created_at)
+        VALUES (#{userId}, #{password}, #{email}, #{nickName}, #{phoneNumber}, #{birthDate}, #{sex}, now())
+    </insert>
+
+    <select id="loginUser" resultType="com.ssafy.enjoytrip.dto.UserDto">
+        SELECT mno, user_id, email, nickname, phone_number, birth_date, sex, created_at, profile_img, introduction
+        FROM user
+        WHERE user_id = #{userId} AND password = #{password}
+    </select>
+
+    <select id="idCheck" parameterType="String" resultType="int">
+        SELECT count(user_id)
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+    
+    <select id="selectUserByUserId" parameterType="string" resultType="com.ssafy.enjoytrip.dto.UserDto">
+        SELECT 
+            user_id as userId,
+            nickname as nickName,
+            email as email,
+            birth_date as birthDate,
+            phone_number as phoneNumber, sex as sex,
+            profile_img as profileImg, 
+            introduction as introduction, created_at as createdAt
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+    
+    <update id="updateUser" parameterType="com.ssafy.enjoytrip.dto.UserDto">
+        UPDATE user
+        SET 
+            nickname = #{nickName},
+            email = #{email},
+            birth_date = #{birthDate},
+            introduction = #{introduction} <if test="profileImg != null and profileImg != ''">
+                , profile_img = #{profileImg}
+            </if>
+        WHERE user_id = #{userId}
+    </update>
+    <select id="emailCheck" parameterType="String" resultType="int">
+    SELECT count(email)
+    FROM user
+    WHERE email = #{email}
+	</select>
+    <delete id="deleteUser" parameterType="String">
+        DELETE FROM user
+        WHERE user_id = #{userId}
+    </delete>
+    
+    <select id="countByNickname" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM user
+        WHERE nickname = #{nickname}
+    </select>
+
+    <select id="countByPhoneNumber" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM user
+        WHERE phone_number = #{phoneNumber}
+    </select>
+
+</mapper>
