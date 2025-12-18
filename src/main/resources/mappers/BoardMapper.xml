@@ -3,14 +3,17 @@
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssafy.enjoytrip.mapper.BoardMapper">
 
-	<insert id="writeArticle" parameterType="boardDto">
+    <insert id="writeArticle" parameterType="boardDto">
         INSERT INTO board (
-            user_id, title, content, rating, type, content_id, 
-            original_file, save_file, regist_date
-        ) VALUES (
-            #{userId}, #{title}, #{content}, #{rating}, #{type}, #{contentId}, 
-            #{originalFile}, #{saveFile}, now()
-        )
+            user_id, title, content, hit, regist_date,
+            type, content_id, rating,
+            attraction_title, attraction_img,
+            latitude, longitude  )
+        VALUES (
+                   #{userId}, #{title}, #{content}, 0, now(),
+                   #{type}, #{contentId}, #{rating},
+                   #{attractionTitle}, #{attractionImg},
+                   #{latitude}, #{longitude} )
     </insert>
 
 	<select id="listArticle" parameterType="map" resultType="boardDto">
@@ -86,8 +89,15 @@
 
     <select id="listMyArticle" parameterType="string" resultType="boardDto">
         SELECT
-            board_id, title, hit, like_count, regist_date, type,
-            attraction_title, attraction_img
+            board_id,
+            content_id,   title,
+            hit,
+            like_count,
+            regist_date,
+            type,
+            attraction_title,
+            latitude,
+            longitude
         FROM board
         WHERE user_id = #{userId}
         ORDER BY board_id DESC
