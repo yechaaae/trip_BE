@@ -135,6 +135,15 @@ CREATE TABLE `user` (
 --
 -- Dumping data for table `user`
 --
+CREATE TABLE attraction_bookmark (
+                                     bookmark_id INT AUTO_INCREMENT PRIMARY KEY,
+                                     user_id VARCHAR(20) NOT NULL,
+                                     content_id INT NOT NULL,          -- 관광지 고유 ID (API용)
+                                     title VARCHAR(100),               -- 관광지 이름
+                                     addr1 VARCHAR(100),               -- 주소
+                                     first_image VARCHAR(255),         -- 이미지 URL
+                                     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
+);
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;

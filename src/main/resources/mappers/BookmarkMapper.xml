@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.enjoytrip.mapper.BookmarkMapper">
+
+    <insert id="addBookmark" parameterType="bookmarkDto">
+        INSERT INTO attraction_bookmark (user_id, content_id, title, addr1, first_image)
+        VALUES (#{userId}, #{contentId}, #{title}, #{addr1}, #{firstImage})
+    </insert>
+
+    <select id="listMyBookmark" parameterType="string" resultType="bookmarkDto">
+        SELECT * FROM attraction_bookmark
+        WHERE user_id = #{userId}
+        ORDER BY bookmark_id DESC
+    </select>
+
+    <delete id="deleteBookmark" parameterType="int">
+        DELETE FROM attraction_bookmark WHERE bookmark_id = #{bookmarkId}
+    </delete>
+
+</mapper>

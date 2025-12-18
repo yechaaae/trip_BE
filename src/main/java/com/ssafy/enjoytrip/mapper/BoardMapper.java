@@ -33,4 +33,6 @@ public interface BoardMapper {
     //리뷰 별점 
     Map<String, Object> getReviewStats(@Param("contentId") int contentId);
 
+
+    List<BoardDto> listMyArticle(String userId);
 }

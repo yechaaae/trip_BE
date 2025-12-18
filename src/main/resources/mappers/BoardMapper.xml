@@ -84,4 +84,12 @@
 	</select>
 
 
+    <select id="listMyArticle" parameterType="string" resultType="boardDto">
+        SELECT
+            board_id, title, hit, like_count, regist_date, type,
+            attraction_title, attraction_img
+        FROM board
+        WHERE user_id = #{userId}
+        ORDER BY board_id DESC
+    </select>
 </mapper>
