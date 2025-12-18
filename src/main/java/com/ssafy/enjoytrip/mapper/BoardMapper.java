@@ -28,4 +28,6 @@ public interface BoardMapper {
 
     // 6. 글 삭제
     void deleteArticle(int boardId) throws SQLException;
+
+    List<BoardDto> listMyArticle(String userId);
 }
