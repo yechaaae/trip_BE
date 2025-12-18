@@ -20,4 +20,6 @@ public interface BoardService {
     void modifyArticle(BoardDto boardDto) throws Exception;
     
     void deleteArticle(int boardId) throws Exception;
+    
+    Map<String, Object> getReviewStats(int contentId);
 }

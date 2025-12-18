@@ -72,6 +72,18 @@
     <delete id="deleteArticle" parameterType="int">
     	DELETE FROM board WHERE board_id = #{boardId}
     </delete>
+    
+	<!-- 특정 관광지(컨텐츠) 리뷰 통계: 평균 별점 + 리뷰 수 -->
+	<select id="getReviewStats" parameterType="int" resultType="map">
+	  SELECT
+	    COUNT(*) AS reviewCount,
+	    ROUND(AVG(rating), 1) AS avgRating
+	  FROM board
+	  WHERE type = 2
+	    AND content_id = #{contentId}
+	</select>
+
+
     <select id="listMyArticle" parameterType="string" resultType="boardDto">
         SELECT
             board_id, title, hit, like_count, regist_date, type,
