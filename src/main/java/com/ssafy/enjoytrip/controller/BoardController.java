@@ -44,7 +44,6 @@ public class BoardController {
     @PostMapping
     public ResponseEntity<?> write(
             @RequestPart("boardDto") BoardDto boardDto,
-            @RequestParam(value = "contentId", required = false) Integer contentId,
             @RequestPart(value = "file", required = false) MultipartFile file,
             HttpSession session) {
 
@@ -59,10 +58,10 @@ public class BoardController {
 
             // 🔥 2. 게시글 타입별 처리
             if (boardDto.getType() == 2) { // 리뷰
-                if (contentId == null) {
+                if (boardDto.getContentId() == null) {
                     return new ResponseEntity<>("리뷰는 관광지를 반드시 선택해야 합니다.", HttpStatus.BAD_REQUEST);
                 }
-                boardDto.setContentId(contentId);
+               
             } else {
                 // 자유게시판
                 boardDto.setContentId(null);
@@ -132,22 +131,44 @@ public class BoardController {
     }
     
  // 4. 글 수정
-    @PutMapping
-    public ResponseEntity<?> modify(@RequestBody BoardDto boardDto, HttpSession session) throws Exception {
+    @PostMapping("/modify") 
+    public ResponseEntity<?> modify(
+            @RequestPart("boardDto") BoardDto boardDto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            HttpSession session) throws Exception {
+        
         // 1. 로그인 체크
         UserDto member = (UserDto) session.getAttribute("userInfo");
         if (member == null) return new ResponseEntity<>("로그인 필요", HttpStatus.UNAUTHORIZED);
 
-        // 2. 작성자 본인 확인 로직 
-        // 수정하려는 글의 정보를 DB에서 먼저 가져옴
-        BoardDto originalBoard = boardService.getArticle(boardDto.getBoardId(),member.getUserId(),false);
+        // 2. 작성자 본인 확인
+        // false: 조회수 증가 방지
+        BoardDto originalBoard = boardService.getArticle(boardDto.getBoardId(), member.getUserId(), false);
         
-        // 글이 없거나, 작성자가 다르면 거부
         if (originalBoard == null || !member.getUserId().equals(originalBoard.getUserId())) {
             return new ResponseEntity<>("권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
 
-        // 3. 본인이 맞으면 수정 진행
+        // 3. 파일 처리 (새로운 파일이 올라왔을 때만)
+        if (file != null && !file.isEmpty()) {
+            String saveFolder = "C:/ssafy/upload/";
+            String originalFileName = file.getOriginalFilename();
+            String saveFileName = UUID.randomUUID() + "_" + originalFileName;
+
+            File folder = new File(saveFolder);
+            if (!folder.exists()) folder.mkdirs();
+
+            file.transferTo(new File(saveFolder + saveFileName));
+
+            // DTO에 새 파일 정보 세팅
+            boardDto.setOriginalFile(originalFileName);
+            boardDto.setSaveFile(saveFileName);
+        } else {
+            // 새 파일이 없으면 기존 파일 정보 유지 (혹은 DB 쿼리에서 null 체크로 처리)
+            // Mapper XML에 <if> 처리가 되어 있으므로 null로 넘겨도 무관
+        }
+
+        // 4. 수정 진행
         boardService.modifyArticle(boardDto);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
