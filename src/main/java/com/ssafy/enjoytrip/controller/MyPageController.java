@@ -76,4 +76,19 @@ public class MyPageController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping("/like")
+    public ResponseEntity<?> getLikedReviews(HttpSession session) {
+        UserDto user = (UserDto) session.getAttribute("userInfo");
+        if (user == null) return new ResponseEntity<>("로그인 필요", HttpStatus.UNAUTHORIZED);
+
+        try {
+            // BoardMapper에 새로 만든 listLikedArticle 메서드 호출
+            List<BoardDto> list = boardMapper.listLikedArticle(user.getUserId());
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace(); // 에러 로그 확인용
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

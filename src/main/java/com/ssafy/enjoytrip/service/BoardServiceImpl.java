@@ -32,13 +32,16 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public BoardDto getArticle(int boardId) throws Exception {
+    public BoardDto getArticle(int boardId, String userId, boolean updateHit) throws Exception {
         // [비즈니스 로직]
         // 상세 글을 보기 전에 조회수를 1 올린다.
-        boardMapper.updateHit(boardId);
+    	if(updateHit) {
+    		boardMapper.updateHit(boardId);
+    	}
+        
         
         // 그 다음 글 내용을 가져온다.
-        return boardMapper.getArticle(boardId);
+        return boardMapper.getArticle(boardId, userId);
     }
 
     @Override
@@ -65,6 +68,33 @@ public class BoardServiceImpl implements BoardService {
         if (stats.get("avgRating") == null) stats.put("avgRating", 0);
 
         return stats;
+    }
+    
+    @Override
+    @Transactional // 트랜잭션 필수
+    public void toggleLike(int boardId, String userId) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("boardId", boardId);
+        map.put("userId", userId);
+        
+        // 1. 이미 좋아요를 눌렀는지 확인
+        int count = boardMapper.checkLike(map);
+        
+        if (count > 0) {
+            // 2-A. 이미 눌렀다면 -> 삭제 (Unlike)
+            boardMapper.deleteLike(map);
+        } else {
+            // 2-B. 안 눌렀다면 -> 추가 (Like)
+            boardMapper.addLike(map);
+        }
+        
+        // 3. board 테이블의 전체 좋아요 수 갱신 (동기화)
+        boardMapper.updateLikeCount(boardId);
+    }
+    
+    @Override
+    public List<BoardDto> listLikedArticle(String userId) throws Exception {
+        return boardMapper.listLikedArticle(userId);
     }
 	
 }

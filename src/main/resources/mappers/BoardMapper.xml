@@ -23,7 +23,7 @@
             u.nickname,
             a.title AS attractionTitle,
             a.first_image AS attractionImg,
-            
+            (SELECT COUNT(*) FROM likes l WHERE l.board_id = b.board_id AND l.user_id = #{userId}) AS userLiked,
             (SELECT COUNT(*) FROM comments c WHERE c.board_id = b.board_id AND c.is_deleted = 0) AS commentCount
             
         FROM board b
@@ -40,7 +40,7 @@
         ORDER BY b.board_id DESC
     </select>
 
-    <select id="getArticle" parameterType="int" resultType="boardDto">
+   <select id="getArticle" parameterType="map" resultType="boardDto">
         SELECT 
             b.board_id,
             b.user_id as userId,
@@ -56,13 +56,14 @@
             b.content_id,
             u.nickname,
             
-            (SELECT COUNT(*) FROM comments c WHERE c.board_id = b.board_id AND c.is_deleted = 0) AS commentCount
+            (SELECT COUNT(*) FROM comments c WHERE c.board_id = b.board_id AND c.is_deleted = 0) AS commentCount,
+            
+            (SELECT COUNT(*) FROM likes l WHERE l.board_id = b.board_id AND l.user_id = #{userId}) AS userLiked
             
         FROM board b
         LEFT JOIN user u ON b.user_id = u.user_id
         WHERE b.board_id = #{boardId}
     </select>
-    
     <update id="updateHit" parameterType="int">
         UPDATE board SET hit = hit + 1 WHERE board_id = #{boardId}
     </update>
@@ -110,4 +111,45 @@
         WHERE b.user_id = #{userId}
         ORDER BY b.board_id DESC
     </select>
+    
+    <select id="checkLike" parameterType="map" resultType="int">
+    SELECT COUNT(*) 
+    FROM likes 
+    WHERE board_id = #{boardId} AND user_id = #{userId}
+</select>
+
+<insert id="addLike" parameterType="map">
+    INSERT INTO likes (board_id, user_id) VALUES (#{boardId}, #{userId})
+</insert>
+
+<delete id="deleteLike" parameterType="map">
+    DELETE FROM likes 
+    WHERE board_id = #{boardId} AND user_id = #{userId}
+</delete>
+
+<update id="updateLikeCount" parameterType="int">
+    UPDATE board 
+    SET like_count = (SELECT COUNT(*) FROM likes WHERE board_id = #{boardId})
+    WHERE board_id = #{boardId}
+</update>
+
+<select id="listLikedArticle" parameterType="string" resultType="boardDto">
+    SELECT 
+        b.board_id, 
+        b.title, 
+        b.rating, 
+        b.hit, 
+        b.regist_date, 
+        b.save_file,
+        b.user_id,
+        u.nickname,
+        -- 좋아요 한 목록에서도 댓글 수나 좋아요 수를 보여주려면 서브쿼리 추가 가능
+        (SELECT COUNT(*) FROM comments c WHERE c.board_id = b.board_id AND c.is_deleted = 0) AS commentCount,
+        b.like_count
+    FROM board b
+    JOIN likes l ON b.board_id = l.board_id
+    LEFT JOIN user u ON b.user_id = u.user_id
+    WHERE l.user_id = #{userId}
+    ORDER BY l.like_id DESC 
+     </select>
 </mapper>
