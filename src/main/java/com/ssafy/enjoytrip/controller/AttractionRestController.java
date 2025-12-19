@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @RequestMapping("/attraction")
 @Slf4j
-
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AttractionRestController {
 	

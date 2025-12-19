@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,10 +29,11 @@ import com.ssafy.enjoytrip.dto.BoardDto;
 import com.ssafy.enjoytrip.dto.UserDto;
 import com.ssafy.enjoytrip.service.BoardService;
 
-// import io.swagger.v3... (이건 지워야 합니다!)
+
 
 @RestController
 @RequestMapping("/api/board")
+@Slf4j
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class BoardController {
 
@@ -99,20 +101,34 @@ public class BoardController {
     @GetMapping
     public ResponseEntity<List<BoardDto>> list(
             @RequestParam(value = "type", required = false, defaultValue = "0") int type,
-            @RequestParam(value = "word", required = false) String word
+            @RequestParam(value = "word", required = false) String word,
+            HttpSession session
     ) throws Exception {
         
         // 검색 조건과 게시판 타입을 Map에 담아서 서비스로 전달
         Map<String, Object> map = new HashMap<>();
         map.put("type", type);
         map.put("word", word);
+        // 로그인한 유저라면 userId를 맵에 담아 보냄 (좋아요 체크용)
+        UserDto userDto = (UserDto) session.getAttribute("userInfo");
+        if (userDto != null) {
+            map.put("userId", userDto.getUserId());
+        }
         
         return new ResponseEntity<>(boardService.listArticle(map), HttpStatus.OK);
     }
     // 3. 상세 조회
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardDto> detail(@PathVariable int boardId) throws Exception {
-        return new ResponseEntity<>(boardService.getArticle(boardId), HttpStatus.OK);
+    public ResponseEntity<BoardDto> detail(@PathVariable int boardId,
+    		@RequestParam(value = "updateHit", required = false, defaultValue = "true") boolean updateHit,
+    		HttpSession session) throws Exception {
+    	String userId = null;
+        UserDto userDto = (UserDto) session.getAttribute("userInfo");
+        if (userDto != null) {
+            userId = userDto.getUserId();
+        }
+    	
+    	return new ResponseEntity<>(boardService.getArticle(boardId,userId,updateHit), HttpStatus.OK);
     }
     
  // 4. 글 수정
@@ -124,7 +140,7 @@ public class BoardController {
 
         // 2. 작성자 본인 확인 로직 
         // 수정하려는 글의 정보를 DB에서 먼저 가져옴
-        BoardDto originalBoard = boardService.getArticle(boardDto.getBoardId());
+        BoardDto originalBoard = boardService.getArticle(boardDto.getBoardId(),member.getUserId(),false);
         
         // 글이 없거나, 작성자가 다르면 거부
         if (originalBoard == null || !member.getUserId().equals(originalBoard.getUserId())) {
@@ -144,7 +160,7 @@ public class BoardController {
         if (member == null) return new ResponseEntity<>("로그인 필요", HttpStatus.UNAUTHORIZED);
 
         // 2. 작성자 본인 확인 로직 
-        BoardDto originalBoard = boardService.getArticle(boardId);
+        BoardDto originalBoard = boardService.getArticle(boardId,member.getUserId(),false);
         
         if (originalBoard == null || !member.getUserId().equals(originalBoard.getUserId())) {
             return new ResponseEntity<>("권한이 없습니다.", HttpStatus.FORBIDDEN);
@@ -159,12 +175,30 @@ public class BoardController {
     // 6. 관광지별 리뷰 통계 (리뷰 수 + 평균 별점)
     @GetMapping("/review/stats/{contentId}")
     public ResponseEntity<Map<String, Object>> getReviewStats(
-            @PathVariable int contentId) {
+            @PathVariable int contentId) throws Exception {
 
         Map<String, Object> stats = boardService.getReviewStats(contentId);
         return new ResponseEntity<>(stats, HttpStatus.OK);
     }
+    
+    @PostMapping("/like/{boardId}")
+    public ResponseEntity<?> toggleLike(@PathVariable int boardId, @RequestBody Map<String, String> map) {
+        
+        String userId = map.get("userId");
+        
+        try {
+            boardService.toggleLike(boardId, userId);
+            return new ResponseEntity<String>("success", HttpStatus.OK);
+        } catch (Exception e) {
+            return exceptionHandling(e);
+        }
+    }
+    
 
+	private ResponseEntity<String> exceptionHandling(Exception e) {
+		e.printStackTrace();
+		return new ResponseEntity<String>("Error : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+	}
     
     
 }

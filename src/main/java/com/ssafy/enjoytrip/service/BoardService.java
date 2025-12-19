@@ -14,12 +14,16 @@ public interface BoardService {
     List<BoardDto> listArticle(Map<String, Object> map) throws Exception;
 
     // 3. 글 상세 조회 (조회수 증가 포함)
-    BoardDto getArticle(int boardId) throws Exception;
+    BoardDto getArticle(int boardId, String userId, boolean updateHit) throws Exception;
     
     
     void modifyArticle(BoardDto boardDto) throws Exception;
     
     void deleteArticle(int boardId) throws Exception;
     
-    Map<String, Object> getReviewStats(int contentId);
+    Map<String, Object> getReviewStats(int contentId) throws Exception;
+    
+    void toggleLike(int boardId, String userId) throws Exception;
+    
+    List<BoardDto> listLikedArticle(String userId) throws Exception;
 }

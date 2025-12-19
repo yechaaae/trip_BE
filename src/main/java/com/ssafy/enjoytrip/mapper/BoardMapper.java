@@ -19,7 +19,7 @@ public interface BoardMapper {
     List<BoardDto> listArticle(Map<String, Object> map) throws SQLException;
 
     // 3. 글 상세 조회 (내용 가져오기)
-    BoardDto getArticle(int boardId) throws SQLException;
+    BoardDto getArticle(@Param("boardId") int boardId, @Param("userId") String userId) throws SQLException;
 
     // 4. 조회수 증가 (상세 조회 시 호출)
     void updateHit(int boardId) throws SQLException;
@@ -35,4 +35,18 @@ public interface BoardMapper {
 
 
     List<BoardDto> listMyArticle(String userId);
+    
+ // 9. 좋아요 여부 확인 (1: 누름, 0: 안누름)
+    int checkLike(Map<String, Object> map) throws SQLException;
+
+    // 10. 좋아요 추가
+    void addLike(Map<String, Object> map) throws SQLException;
+
+    // 11. 좋아요 취소
+    void deleteLike(Map<String, Object> map) throws SQLException;
+
+    // 12. board 테이블의 좋아요 수(like_count) 동기화
+    void updateLikeCount(int boardId) throws SQLException;
+    
+    List<BoardDto> listLikedArticle(String userId) throws SQLException;
 }
