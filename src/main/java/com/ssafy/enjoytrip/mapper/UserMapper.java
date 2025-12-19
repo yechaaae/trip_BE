@@ -36,8 +36,8 @@ public interface UserMapper {
 	int emailCheck(String email) throws SQLException;
 	
 	// 닉네임 중복 체크 (중복이면 1, 아니면 0 반환)
-    int countByNickname(String nickname);
+    int countByNickname(String nickname)throws SQLException;
 
     // 전화번호 중복 체크
-    int countByPhoneNumber(String phoneNumber);
+    int countByPhoneNumber(String phoneNumber)throws SQLException;
 }

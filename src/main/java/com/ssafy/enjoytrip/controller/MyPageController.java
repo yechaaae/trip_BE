@@ -3,6 +3,7 @@ package com.ssafy.enjoytrip.controller;
 import java.util.List;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import com.ssafy.enjoytrip.mapper.BookmarkMapper;
 
 @RestController
 @RequestMapping("/api/mypage")
+@Slf4j
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class MyPageController {
 
