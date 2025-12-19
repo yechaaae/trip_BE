@@ -67,4 +67,39 @@
         WHERE phone_number = #{phoneNumber}
     </select>
 
+
+	<!-- 리뷰 수 랭킹 -->
+	<select id="selectReviewRanking" resultType="com.ssafy.enjoytrip.dto.RankingDto">
+	    SELECT u.nickname, COUNT(*) AS value
+	    FROM board b
+	    JOIN user u ON b.user_id = u.user_id
+	    WHERE b.type = 2  <!-- 여행 리뷰 타입 -->
+	    GROUP BY u.nickname
+	    ORDER BY value DESC
+	    LIMIT 10
+	</select>
+	
+	<!-- 좋아요 수 랭킹 -->
+	<select id="selectLikeRanking" resultType="com.ssafy.enjoytrip.dto.RankingDto">
+	    SELECT u.nickname, SUM(b.like_count) AS value
+	    FROM board b
+	    JOIN user u ON b.user_id = u.user_id
+	    GROUP BY u.nickname
+	    ORDER BY value DESC
+	    LIMIT 10
+	</select>
+	
+	<!-- 뱃지 수 랭킹 -->
+	<select id="selectBadgeRanking" resultType="com.ssafy.enjoytrip.dto.RankingDto">
+	    SELECT u.nickname, COUNT(DISTINCT b.badge) AS value
+	    FROM user u
+	    LEFT JOIN badges b ON u.user_id = b.user_id
+	    GROUP BY u.nickname
+	    ORDER BY value DESC
+	    LIMIT 10
+	</select>
+
+
+
+		
 </mapper>

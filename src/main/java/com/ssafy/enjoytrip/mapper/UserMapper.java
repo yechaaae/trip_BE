@@ -1,10 +1,12 @@
 package com.ssafy.enjoytrip.mapper;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.ssafy.enjoytrip.dto.RankingDto;
 import com.ssafy.enjoytrip.dto.UserDto;
 
 
@@ -40,4 +42,14 @@ public interface UserMapper {
 
     // 전화번호 중복 체크
     int countByPhoneNumber(String phoneNumber);
+    
+    // 리뷰 수 랭킹
+    List<RankingDto> selectReviewRanking();
+
+    // 좋아요 수 랭킹
+    List<RankingDto> selectLikeRanking();
+
+    // 뱃지 수 랭킹
+    List<RankingDto> selectBadgeRanking();
+    
 }
