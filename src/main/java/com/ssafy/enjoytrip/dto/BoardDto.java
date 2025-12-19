@@ -24,4 +24,6 @@ public class BoardDto {
 
     private Double latitude;   // 위도
     private Double longitude;  // 경도
+    
+    private int commentCount;
 }

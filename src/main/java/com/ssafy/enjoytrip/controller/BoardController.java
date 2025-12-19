@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,10 +29,11 @@ import com.ssafy.enjoytrip.dto.BoardDto;
 import com.ssafy.enjoytrip.dto.UserDto;
 import com.ssafy.enjoytrip.service.BoardService;
 
-// import io.swagger.v3... (이건 지워야 합니다!)
+
 
 @RestController
 @RequestMapping("/api/board")
+@Slf4j
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class BoardController {
 

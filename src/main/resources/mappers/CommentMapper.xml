@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.enjoytrip.mapper.CommentMapper">
+
+    <insert id="writeComment" parameterType="CommentDto">
+        INSERT INTO comments (board_id, user_id, content, parent_id, created_at)
+        VALUES (#{boardId}, #{userId}, #{content}, #{parentId}, NOW())
+    </insert>
+
+    <select id="listComments" parameterType="int" resultType="CommentDto">
+        SELECT c.comment_id, 
+               c.board_id, 
+               c.user_id, 
+               c.content, 
+               c.parent_id, 
+               c.is_deleted, 
+               c.created_at,
+               m.nickname AS nickName 
+        FROM comments c
+        JOIN user m ON c.user_id = m.user_id
+        WHERE c.board_id = #{boardId}
+        ORDER BY c.comment_id ASC
+    </select>
+
+    <update id="deleteComment">
+        UPDATE comments
+        SET is_deleted = 1
+        WHERE comment_id = #{commentId}
+        AND user_id = #{userId}
+    </update>
+    
+    <update id="modifyComment" parameterType="CommentDto">
+        UPDATE comments
+        SET content = #{content}
+        WHERE comment_id = #{commentId}
+        AND user_id = #{userId}
+    </update>
+
+</mapper>
