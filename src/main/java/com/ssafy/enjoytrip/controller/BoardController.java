@@ -101,19 +101,20 @@ public class BoardController {
     public ResponseEntity<List<BoardDto>> list(
             @RequestParam(value = "type", required = false, defaultValue = "0") int type,
             @RequestParam(value = "word", required = false) String word,
+            @RequestParam(value = "sort", required = false, defaultValue = "latest") String sort, 
             HttpSession session
     ) throws Exception {
-        
-        // 검색 조건과 게시판 타입을 Map에 담아서 서비스로 전달
+
         Map<String, Object> map = new HashMap<>();
         map.put("type", type);
         map.put("word", word);
-        // 로그인한 유저라면 userId를 맵에 담아 보냄 (좋아요 체크용)
+        map.put("sort", sort);
+
         UserDto userDto = (UserDto) session.getAttribute("userInfo");
         if (userDto != null) {
             map.put("userId", userDto.getUserId());
         }
-        
+
         return new ResponseEntity<>(boardService.listArticle(map), HttpStatus.OK);
     }
     // 3. 상세 조회
