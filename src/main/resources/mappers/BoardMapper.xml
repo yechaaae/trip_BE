@@ -8,12 +8,14 @@
             user_id, title, content, hit, regist_date,
             type, content_id, rating,
             attraction_title, attraction_img,
-            latitude, longitude  )
+            latitude, longitude,
+            original_file, save_file  )
         VALUES (
                    #{userId}, #{title}, #{content}, 0, now(),
                    #{type}, #{contentId}, #{rating},
                    #{attractionTitle}, #{attractionImg},
-                   #{latitude}, #{longitude} )
+                   #{latitude}, #{longitude},
+                   #{originalFile}, #{saveFile} )
     </insert>
 
     <select id="listArticle" parameterType="map" resultType="boardDto">
