@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ssafy.enjoytrip.dto.BoardDto;
+import com.ssafy.enjoytrip.dto.PageResponse;
 
 
 public interface BoardService {
@@ -26,4 +27,13 @@ public interface BoardService {
     void toggleLike(int boardId, String userId) throws Exception;
     
     List<BoardDto> listLikedArticle(String userId) throws Exception;
+    
+    PageResponse<BoardDto> getPlaceReviews(
+            int contentId,
+            int page,
+            int size,
+            String sort
+    );
+
+
 }

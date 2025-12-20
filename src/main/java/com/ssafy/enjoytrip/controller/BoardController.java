@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ssafy.enjoytrip.dto.BoardDto;
+import com.ssafy.enjoytrip.dto.PageResponse;
 import com.ssafy.enjoytrip.dto.UserDto;
 import com.ssafy.enjoytrip.service.BoardService;
 
@@ -216,7 +217,18 @@ public class BoardController {
         }
     }
     
+    @GetMapping("/place-reviews")
+    public PageResponse<BoardDto> getPlaceReviews(
+            @RequestParam int contentId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "latest") String sort
+    ) {
+        return boardService.getPlaceReviews(contentId, page, size, sort);
+    }
 
+    
+    
 	private ResponseEntity<String> exceptionHandling(Exception e) {
 		e.printStackTrace();
 		return new ResponseEntity<String>("Error : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -49,4 +49,17 @@ public interface BoardMapper {
     void updateLikeCount(int boardId) throws SQLException;
     
     List<BoardDto> listLikedArticle(String userId) throws SQLException;
+    
+ // 관광지 리뷰 개수
+    int countPlaceReview(@Param("contentId") int contentId);
+
+    List<BoardDto> selectPlaceReviews(
+    	    @Param("contentId") int contentId,
+    	    @Param("offset") int offset,
+    	    @Param("size") int size,
+    	    @Param("sort") String sort
+    	);
+
+
+
 }

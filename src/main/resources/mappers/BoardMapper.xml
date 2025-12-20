@@ -170,5 +170,63 @@
     LEFT JOIN user u ON b.user_id = u.user_id
     WHERE l.user_id = #{userId}
     ORDER BY l.like_id DESC 
-     </select>
+</select>
+
+<select id="countPlaceReview" parameterType="int" resultType="int">
+  SELECT COUNT(*)
+  FROM board
+  WHERE type = 2
+    AND content_id = #{contentId}
+</select>
+
+<select id="selectPlaceReviews"
+        resultType="boardDto">
+
+    SELECT
+        b.board_id,
+        b.user_id,
+        b.title,
+        b.content,
+        b.rating,
+        b.hit,
+        b.like_count,
+        b.regist_date,
+        b.type,
+        b.save_file,
+        b.original_file,
+        b.content_id,
+
+        u.nickname,
+
+        a.title AS attractionTitle,
+        a.first_image AS attractionImg,
+
+        (SELECT COUNT(*)
+         FROM comments c
+         WHERE c.board_id = b.board_id
+           AND c.is_deleted = 0) AS commentCount
+
+    FROM board b
+    LEFT JOIN user u ON b.user_id = u.user_id
+    LEFT JOIN attractions a ON b.content_id = a.content_id
+
+    WHERE b.type = 2
+      AND b.content_id = #{contentId}
+
+    <choose>
+        <when test="sort == 'rating'">
+            ORDER BY b.rating DESC, b.regist_date DESC
+        </when>
+        <when test="sort == 'popular'">
+            ORDER BY b.like_count DESC, b.regist_date DESC
+        </when>
+        <otherwise>
+            ORDER BY b.regist_date DESC
+        </otherwise>
+    </choose>
+
+    LIMIT #{size} OFFSET #{offset}
+</select>
+
+     
 </mapper>
