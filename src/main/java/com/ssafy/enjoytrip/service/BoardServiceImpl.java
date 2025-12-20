@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.security.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ssafy.enjoytrip.dto.BoardDto;
+import com.ssafy.enjoytrip.dto.PageResponse;
 import com.ssafy.enjoytrip.mapper.BoardMapper;
-
-
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -96,5 +96,22 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardDto> listLikedArticle(String userId) throws Exception {
         return boardMapper.listLikedArticle(userId);
     }
+    
+    @Override
+    public PageResponse<BoardDto> getPlaceReviews(
+            int contentId, int page, int size, String sort
+    ) {
+        int offset = (page - 1) * size;
+
+        int totalElements = boardMapper.countPlaceReview(contentId);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        List<BoardDto> list = boardMapper.selectPlaceReviews(
+                contentId, offset, size, sort
+        );
+
+        return new PageResponse<>(list, page, totalPages, totalElements, size);
+    }
+
 	
 }
