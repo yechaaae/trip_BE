@@ -286,7 +286,28 @@ public class UserRestController {
             return exceptionHandling(e);
         }
     }
-	
+    /**
+     * 10. 타인 회원 정보 조회 (GET)
+     * URL: /user/info/{userId}
+     * 타인의 프로필 페이지 방문 시 닉네임, 소개글, 프로필 사진 등을 반환
+     */
+    @GetMapping("/info/{userId}")
+    public ResponseEntity<?> getOtherUserInfo(@PathVariable("userId") String userId) {
+        log.debug("타인 회원 정보 조회 요청: {}", userId);
+        try {
+            UserDto userInfo = userService.getUserInfo(userId);
+
+            if (userInfo != null) {
+                userInfo.setPassword(null); // 보안상 비밀번호 제거
+                return new ResponseEntity<UserDto>(userInfo, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return exceptionHandling(e);
+        }
+    }
 	// 공통 예외 처리 메서드
 	
 		private ResponseEntity<String> exceptionHandling(Exception e) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
-	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssafy.enjoytrip.mapper.BoardMapper">
 
     <insert id="writeArticle" parameterType="boardDto">
@@ -17,50 +17,58 @@
                    #{latitude}, #{longitude},
                    #{originalFile}, #{saveFile} )
     </insert>
-
     <select id="listArticle" parameterType="map" resultType="boardDto">
         SELECT
         b.board_id, b.user_id, b.title, b.content, b.rating, b.hit, b.like_count, b.regist_date,
         b.type, b.save_file,
         u.nickname,
+        u.introduction AS writerIntroduction,
+        (SELECT COUNT(*) FROM board b2 WHERE b2.user_id = b.user_id AND b2.type = 2) AS writerReviewCount,
+        -- 관광지 정보
         a.title AS attractionTitle,
-        a.first_image AS attractionImg,
-        -- 좋아요 여부
+        a.first_image1 AS attractionImg,
+
+        -- 좋아요 여부 (로그인 유저 기준)
         (SELECT COUNT(*) FROM likes l WHERE l.board_id = b.board_id AND l.user_id = #{userId}) AS userLiked,
-        -- 댓글 수 (정렬에 사용됨)
+        -- 댓글 수
         (SELECT COUNT(*) FROM comments c WHERE c.board_id = b.board_id AND c.is_deleted = 0) AS commentCount
 
         FROM board b
         LEFT JOIN user u ON b.user_id = u.user_id
         LEFT JOIN attractions a ON b.content_id = a.content_id
+
         <where>
             <if test="type != 0">
                 AND b.type = #{type}
             </if>
+
             <if test="word != null and word != ''">
                 AND b.title LIKE CONCAT('%', #{word}, '%')
+            </if>
+
+            <if test="sidoCode != 0">
+                AND a.area_code = #{sidoCode}
+            </if>
+
+            <if test="contentTypeId != 0">
+                AND a.content_type_id = #{contentTypeId}
+            </if>
+
+            <if test="writerId != null and writerId != ''">
+                AND b.user_id = #{writerId}
             </if>
         </where>
 
         ORDER BY
         <choose>
-            <when test="sort == 'views'">
-                b.hit DESC, b.board_id DESC
-            </when>
-            <when test="sort == 'comments'">
-                commentCount DESC, b.board_id DESC
-            </when>
-            <when test="sort == 'likes'">
-                b.like_count DESC, b.board_id DESC
-            </when>
-            <otherwise>
-                b.board_id DESC
-            </otherwise>
+            <when test="sort == 'views'"> b.hit DESC, b.board_id DESC </when>
+            <when test="sort == 'comments'"> commentCount DESC, b.board_id DESC </when>
+            <when test="sort == 'likes'"> b.like_count DESC, b.board_id DESC </when>
+            <otherwise> b.board_id DESC </otherwise>
         </choose>
     </select>
-
-   <select id="getArticle" parameterType="map" resultType="boardDto">
-        SELECT 
+    <select id="getArticle" parameterType="map" resultType="boardDto">
+        SELECT
             b.board_id,
             b.user_id as userId,
             b.title,
@@ -74,115 +82,116 @@
             b.original_file,
             b.content_id,
             u.nickname,
-            
+
             (SELECT COUNT(*) FROM comments c WHERE c.board_id = b.board_id AND c.is_deleted = 0) AS commentCount,
-            
+
             (SELECT COUNT(*) FROM likes l WHERE l.board_id = b.board_id AND l.user_id = #{userId}) AS userLiked
-            
+
         FROM board b
-        LEFT JOIN user u ON b.user_id = u.user_id
+                 LEFT JOIN user u ON b.user_id = u.user_id
         WHERE b.board_id = #{boardId}
     </select>
     <update id="updateHit" parameterType="int">
         UPDATE board SET hit = hit + 1 WHERE board_id = #{boardId}
     </update>
-    
+
     <update id="modifyArticle" parameterType="boardDto">
-    	UPDATE board
-    	SET title = #{title},
-    		content = #{content},
-    		rating = #{rating}
-    		<if test="originalFile != null and originalFile != ''">
-    			, original_file = #{originalFile}
-    			, save_file = #{saveFile}
-    		</if>
-    	WHERE board_id = #{boardId}
+        UPDATE board
+        SET title = #{title},
+        content = #{content},
+        rating = #{rating}
+        <if test="originalFile != null and originalFile != ''">
+            , original_file = #{originalFile}
+            , save_file = #{saveFile}
+        </if>
+        WHERE board_id = #{boardId}
     </update>
-    
+
     <delete id="deleteArticle" parameterType="int">
-    	DELETE FROM board WHERE board_id = #{boardId}
+        DELETE FROM board WHERE board_id = #{boardId}
     </delete>
-    
-	<select id="getReviewStats" parameterType="int" resultType="map">
-	  SELECT
-	    COUNT(*) AS reviewCount,
-	    ROUND(AVG(rating), 1) AS avgRating
-	  FROM board
-	  WHERE type = 2
-	    AND content_id = #{contentId}
-	</select>
+
+    <select id="getReviewStats" parameterType="int" resultType="map">
+        SELECT
+            COUNT(*) AS reviewCount,
+            ROUND(AVG(rating), 1) AS avgRating
+        FROM board
+        WHERE type = 2
+          AND content_id = #{contentId}
+    </select>
 
     <select id="listMyArticle" parameterType="string" resultType="boardDto">
         SELECT
             b.board_id,
-            b.content_id, b.title,
+            b.content_id,
+            b.title,
             b.hit,
-            b.like_count,
+            b.rating,       b.save_file,    b.like_count,
             b.regist_date,
             b.type,
             b.attraction_title,
             b.latitude,
             b.longitude,
-            
+
             (SELECT COUNT(*) FROM comments c WHERE c.board_id = b.board_id AND c.is_deleted = 0) AS commentCount
-            
+
         FROM board b
         WHERE b.user_id = #{userId}
         ORDER BY b.board_id DESC
     </select>
-    
+
     <select id="checkLike" parameterType="map" resultType="int">
-    SELECT COUNT(*) 
-    FROM likes 
-    WHERE board_id = #{boardId} AND user_id = #{userId}
-</select>
+        SELECT COUNT(*)
+        FROM likes
+        WHERE board_id = #{boardId} AND user_id = #{userId}
+    </select>
 
-<insert id="addLike" parameterType="map">
-    INSERT INTO likes (board_id, user_id) VALUES (#{boardId}, #{userId})
-</insert>
+    <insert id="addLike" parameterType="map">
+        INSERT INTO likes (board_id, user_id) VALUES (#{boardId}, #{userId})
+    </insert>
 
-<delete id="deleteLike" parameterType="map">
-    DELETE FROM likes 
-    WHERE board_id = #{boardId} AND user_id = #{userId}
-</delete>
+    <delete id="deleteLike" parameterType="map">
+        DELETE FROM likes
+        WHERE board_id = #{boardId} AND user_id = #{userId}
+    </delete>
 
-<update id="updateLikeCount" parameterType="int">
-    UPDATE board 
-    SET like_count = (SELECT COUNT(*) FROM likes WHERE board_id = #{boardId})
-    WHERE board_id = #{boardId}
-</update>
+    <update id="updateLikeCount" parameterType="int">
+        UPDATE board
+        SET like_count = (SELECT COUNT(*) FROM likes WHERE board_id = #{boardId})
+        WHERE board_id = #{boardId}
+    </update>
 
-<select id="listLikedArticle" parameterType="string" resultType="boardDto">
-    SELECT 
-        b.board_id, 
-        b.title, 
-        b.rating, 
-        b.hit, 
-        b.regist_date, 
-        b.save_file,
-        b.user_id,
-        u.nickname,
-        -- 좋아요 한 목록에서도 댓글 수나 좋아요 수를 보여주려면 서브쿼리 추가 가능
-        (SELECT COUNT(*) FROM comments c WHERE c.board_id = b.board_id AND c.is_deleted = 0) AS commentCount,
-        b.like_count
-    FROM board b
-    JOIN likes l ON b.board_id = l.board_id
-    LEFT JOIN user u ON b.user_id = u.user_id
-    WHERE l.user_id = #{userId}
-    ORDER BY l.like_id DESC 
-</select>
+    <select id="listLikedArticle" parameterType="string" resultType="boardDto">
+        SELECT
+            b.board_id,
+            b.title,
+            b.rating,
+            b.hit,
+            b.regist_date,
+            b.save_file,
+            b.user_id,
+            u.nickname,
+            -- 좋아요 한 목록에서도 댓글 수나 좋아요 수를 보여주려면 서브쿼리 추가 가능
+            (SELECT COUNT(*) FROM comments c WHERE c.board_id = b.board_id AND c.is_deleted = 0) AS commentCount,
+            b.like_count
+        FROM board b
+                 JOIN likes l ON b.board_id = l.board_id
+                 LEFT JOIN user u ON b.user_id = u.user_id
+        WHERE l.user_id = #{userId}
+        ORDER BY l.like_id DESC
+    </select>
 
-<select id="countPlaceReview" parameterType="int" resultType="int">
-  SELECT COUNT(*)
-  FROM board
-  WHERE type = 2
-    AND content_id = #{contentId}
-</select>
+    <select id="countPlaceReview" parameterType="int" resultType="int">
+        SELECT COUNT(*)
+        FROM board
+        WHERE type = 2
+          AND content_id = #{contentId}
+    </select>
 
-<select id="selectPlaceReviews"
-        resultType="boardDto">
+    <select id="selectPlaceReviews"
+            resultType="boardDto">
 
-    SELECT
+        SELECT
         b.board_id,
         b.user_id,
         b.title,
@@ -202,31 +211,31 @@
         a.first_image AS attractionImg,
 
         (SELECT COUNT(*)
-         FROM comments c
-         WHERE c.board_id = b.board_id
-           AND c.is_deleted = 0) AS commentCount
+        FROM comments c
+        WHERE c.board_id = b.board_id
+        AND c.is_deleted = 0) AS commentCount
 
-    FROM board b
-    LEFT JOIN user u ON b.user_id = u.user_id
-    LEFT JOIN attractions a ON b.content_id = a.content_id
+        FROM board b
+        LEFT JOIN user u ON b.user_id = u.user_id
+        LEFT JOIN attractions a ON b.content_id = a.content_id
 
-    WHERE b.type = 2
-      AND b.content_id = #{contentId}
+        WHERE b.type = 2
+        AND b.content_id = #{contentId}
 
-    <choose>
-        <when test="sort == 'rating'">
-            ORDER BY b.rating DESC, b.regist_date DESC
-        </when>
-        <when test="sort == 'popular'">
-            ORDER BY b.like_count DESC, b.regist_date DESC
-        </when>
-        <otherwise>
-            ORDER BY b.regist_date DESC
-        </otherwise>
-    </choose>
+        <choose>
+            <when test="sort == 'rating'">
+                ORDER BY b.rating DESC, b.regist_date DESC
+            </when>
+            <when test="sort == 'popular'">
+                ORDER BY b.like_count DESC, b.regist_date DESC
+            </when>
+            <otherwise>
+                ORDER BY b.regist_date DESC
+            </otherwise>
+        </choose>
 
-    LIMIT #{size} OFFSET #{offset}
-</select>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
 
-     
+
 </mapper>
