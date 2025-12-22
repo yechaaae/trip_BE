@@ -19,4 +19,6 @@ public interface CommentService {
 	//4.댓글 조회
 	List<CommentDto> listComments(int boardId) throws Exception;
 
+    // 5. 관리자로 댓글 삭제
+    void deleteCommentByAdmin(int commentId) throws Exception;
 }

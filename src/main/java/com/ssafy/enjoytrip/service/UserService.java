@@ -2,6 +2,8 @@ package com.ssafy.enjoytrip.service;
 
 import com.ssafy.enjoytrip.dto.UserDto;
 
+import java.util.List;
+
 public interface UserService {
 		// 서비스는 UserMapper에 있는 여러가지 메서드를 조합해서 하나의 (예: 회원가입) 로직을 처리
 	
@@ -30,4 +32,7 @@ public interface UserService {
 	    
 	    // 9. 전화번호 중복 체크
 	    int phoneNumberCheck(String phoneNumber) throws Exception;
+
+        // 10. 관리자 기능 처리 로직 추가
+        List<UserDto> listUser() throws Exception;
 }

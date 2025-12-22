@@ -95,7 +95,10 @@ public class CommentServiceImpl implements CommentService{
 		
 		return rootList;
 	}
-	
+    @Override
+    public void deleteCommentByAdmin(int commentId) throws SQLException {
+        commentMapper.deleteCommentByAdmin(commentId);
+    }
 	
 
 }

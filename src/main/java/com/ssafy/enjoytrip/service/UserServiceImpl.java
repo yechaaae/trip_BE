@@ -8,6 +8,8 @@ import com.ssafy.enjoytrip.mapper.UserMapper;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
@@ -90,5 +92,8 @@ public class UserServiceImpl implements UserService{
     public int phoneNumberCheck(String phoneNumber) throws Exception {
         return userMapper.countByPhoneNumber(phoneNumber);
     }
-
+    @Override
+    public List<UserDto> listUser() throws Exception {
+        return userMapper.selectAllUsers();
+    }
 }

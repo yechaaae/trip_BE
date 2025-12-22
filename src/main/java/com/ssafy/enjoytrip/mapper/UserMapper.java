@@ -51,5 +51,7 @@ public interface UserMapper {
 
     // 뱃지 수 랭킹
     List<RankingDto> selectBadgeRanking();
+
+    List<UserDto> selectAllUsers() throws SQLException;
     
 }

@@ -23,4 +23,6 @@ public interface CommentMapper {
 	// 4. 댓글 수정
 	int modifyComment(CommentDto commentDto)throws SQLException;
 
+    // 5. 관리자로 댓글 삭제
+    int deleteCommentByAdmin(int commentId) throws SQLException;
 }
