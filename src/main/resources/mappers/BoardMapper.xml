@@ -37,27 +37,31 @@
         LEFT JOIN user u ON b.user_id = u.user_id
         LEFT JOIN attractions a ON b.content_id = a.content_id
 
-        <where>
-            <if test="type != 0">
-                AND b.type = #{type}
-            </if>
+       <where>
+    	<if test="type != 0">
+        	AND b.type = #{type}
+   		 </if>
 
-            <if test="word != null and word != ''">
-                AND b.title LIKE CONCAT('%', #{word}, '%')
-            </if>
+    	<if test="word != null and word != ''">
+       		AND b.title LIKE CONCAT('%', #{word}, '%')
+   		 </if>
 
-            <if test="sidoCode != 0">
-                AND a.area_code = #{sidoCode}
-            </if>
+   		 <if test="startDate != null and startDate != '' and endDate != null and endDate != ''">
+        	AND DATE(b.regist_date) BETWEEN #{startDate} AND #{endDate}
+   		 </if>
 
-            <if test="contentTypeId != 0">
-                AND a.content_type_id = #{contentTypeId}
-            </if>
+   		 <if test="onlyFollowing == true and userId != null">
+        	AND b.user_id IN (
+            SELECT to_user_id 
+            FROM follows 
+            WHERE from_user_id = #{userId}
+      		  )
+  		  </if>
 
-            <if test="writerId != null and writerId != ''">
-                AND b.user_id = #{writerId}
-            </if>
-        </where>
+    	<if test="writerId != null and writerId != ''">
+       		 AND b.user_id = #{writerId}
+  		 </if>
+		</where>
 
         ORDER BY
         <choose>

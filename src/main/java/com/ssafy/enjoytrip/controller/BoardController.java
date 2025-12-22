@@ -97,8 +97,9 @@ public class BoardController {
             @RequestParam(value = "type", required = false, defaultValue = "0") int type,
             @RequestParam(value = "word", required = false) String word,
             @RequestParam(value = "sort", required = false, defaultValue = "latest") String sort,
-            @RequestParam(value = "sido", required = false, defaultValue = "0") int sido,
-            @RequestParam(value = "content", required = false, defaultValue = "0") int content,
+            @RequestParam(value = "onlyFollowing", required = false, defaultValue = "false") boolean onlyFollowing,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
             HttpSession session
     ) throws Exception {
 
@@ -106,8 +107,10 @@ public class BoardController {
         map.put("type", type);
         map.put("word", word);
         map.put("sort", sort);
-        map.put("sidoCode", sido);
-        map.put("contentTypeId", content);
+        map.put("onlyFollowing", onlyFollowing);
+        if (startDate != null && !startDate.isEmpty()) map.put("startDate", startDate);
+        if (endDate != null && !endDate.isEmpty()) map.put("endDate", endDate);
+        
         UserDto userDto = (UserDto) session.getAttribute("userInfo");
         if (userDto != null) {
             map.put("userId", userDto.getUserId());
