@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -88,6 +89,23 @@ public class MyPageController {
             return new ResponseEntity<>(list, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace(); // 에러 로그 확인용
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // 4. 관광지 찜 취소 (삭제) 
+    @DeleteMapping("/bookmark/{bookmarkId}")
+    public ResponseEntity<?> deleteBookmark(@org.springframework.web.bind.annotation.PathVariable("bookmarkId") int bookmarkId, HttpSession session) {
+        UserDto user = (UserDto) session.getAttribute("userInfo");
+        if (user == null) return new ResponseEntity<>("로그인 필요", HttpStatus.UNAUTHORIZED);
+
+        try {
+            // Mapper에 삭제 메서드가 있다고 가정하고 호출
+            // (혹시 Mapper에 메서드 이름이 다르다면 그 이름으로 맞춰주세요)
+            bookmarkMapper.deleteBookmark(bookmarkId);
+            return new ResponseEntity<>("삭제 완료", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
