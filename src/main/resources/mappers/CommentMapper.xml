@@ -36,5 +36,7 @@
         WHERE comment_id = #{commentId}
         AND user_id = #{userId}
     </update>
-
+    <update id="deleteCommentByAdmin">
+        UPDATE comments SET is_deleted = 1 WHERE comment_id = #{commentId}
+    </update>
 </mapper>

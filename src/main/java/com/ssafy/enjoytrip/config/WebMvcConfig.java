@@ -1,7 +1,9 @@
 package com.ssafy.enjoytrip.config;
 
+import com.ssafy.enjoytrip.interceptor.AdminInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -16,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class WebMvcConfig implements WebMvcConfigurer {
     
     private final LoginInterceptor loginInterceptor;
-
+    private final AdminInterceptor adminInterceptor;
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 브라우저에서 http://localhost:8080/upload/파일이름.jpg 로 요청이 들어오면
@@ -38,6 +40,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/board/modify") // 글수정
                 .addPathPatterns("/board/delete") // 글삭제
                 .addPathPatterns("/follow/**");   // 팔로우 관련 모든 기능
+
+        registry.addInterceptor(adminInterceptor)
+                .addPathPatterns("/admin/**");
+
     }
     
     @Override

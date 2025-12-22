@@ -28,4 +28,6 @@ public class UserDto {
 	// 통계용 필드 추가
     private int badges;  // 뱃지 개수
     private int reviews; // 리뷰 개수
+
+    private int role; // 0: 일반유저, 1: 관리자 (활성화)
 }

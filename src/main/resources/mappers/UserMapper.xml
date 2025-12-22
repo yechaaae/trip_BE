@@ -10,7 +10,7 @@
     </insert>
 
     <select id="loginUser" resultType="com.ssafy.enjoytrip.dto.UserDto">
-        SELECT mno, user_id, email, nickname, phone_number, birth_date, sex, created_at, profile_img, introduction
+        SELECT mno, user_id, email, nickname, phone_number, birth_date, sex, created_at, profile_img, introduction, role
         FROM user
         WHERE user_id = #{userId} AND password = #{password}
     </select>
@@ -20,15 +20,16 @@
         FROM user
         WHERE user_id = #{userId}
     </select>
-    
+
     <select id="selectUserByUserId" parameterType="string" resultType="com.ssafy.enjoytrip.dto.UserDto">
-        SELECT 
+        SELECT
             user_id as userId,
             nickname as nickName,
             email as email,
+            role as role,
             birth_date as birthDate,
             phone_number as phoneNumber, sex as sex,
-            profile_img as profileImg, 
+            profile_img as profileImg,
             introduction as introduction, created_at as createdAt
         FROM user
         WHERE user_id = #{userId}
@@ -67,6 +68,11 @@
         WHERE phone_number = #{phoneNumber}
     </select>
 
+    <select id="selectAllUsers" resultType="com.ssafy.enjoytrip.dto.UserDto">
+        SELECT mno, user_id, email, nickname, phone_number, birth_date, role, created_at
+        FROM user
+        ORDER BY created_at DESC
+    </select>
 
 	<!-- 리뷰 수 랭킹 -->
   <select id="selectReviewRanking" resultType="com.ssafy.enjoytrip.dto.RankingDto">
