@@ -24,4 +24,8 @@ public class UserDto {
 	private String introduction;
 	// 선택 사항 (관리자 일반 유저 구분)
 	// private int role; // 0: 일반, 1: 관리자
+	
+	// 통계용 필드 추가
+    private int badges;  // 뱃지 개수
+    private int reviews; // 리뷰 개수
 }

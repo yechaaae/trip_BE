@@ -10,6 +10,10 @@ public class RankingDto {
     private String userId;
     private String profileImg;
     private String introduction;
-    private int reviews; // 프로필 방문 팝업에 보일 리뷰 수
+ // 프로필 방문 팝업에 보일 리뷰 수
+    private int reviews; 
+    
+    private int badges;
+    
 
 }

@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ssafy.enjoytrip.dto.BoardDto;
 import com.ssafy.enjoytrip.dto.PageResponse;
 import com.ssafy.enjoytrip.dto.UserDto;
+import com.ssafy.enjoytrip.service.BadgeService;
 import com.ssafy.enjoytrip.service.BoardService;
 
 @RestController
@@ -38,7 +39,8 @@ public class BoardController {
 
     @Autowired
     private BoardService boardService;
-
+    @Autowired
+    private BadgeService badgeService;
     // 1. 글 작성
     @PostMapping
     public ResponseEntity<?> write(
@@ -55,14 +57,12 @@ public class BoardController {
 
             boardDto.setUserId(userDto.getUserId());
 
-            // 2. 게시글 타입별 처리
-            if (boardDto.getType() == 2) { // 리뷰
+            // 2. 게시글 타입별 처리 (리뷰 검증)
+            if (boardDto.getType() == 2) { 
                 if (boardDto.getContentId() == null) {
                     return new ResponseEntity<>("리뷰는 관광지를 반드시 선택해야 합니다.", HttpStatus.BAD_REQUEST);
                 }
-
             } else {
-                // 자유게시판
                 boardDto.setContentId(null);
             }
 
@@ -76,13 +76,26 @@ public class BoardController {
                 if (!folder.exists()) folder.mkdirs();
 
                 file.transferTo(new File(saveFolder + saveFileName));
-
                 boardDto.setOriginalFile(originalFileName);
                 boardDto.setSaveFile(saveFileName);
             }
 
+            // 4. 게시글 DB 저장
             boardService.writeArticle(boardDto);
-            return new ResponseEntity<>(HttpStatus.CREATED);
+
+            // 5. 뱃지 로직 호출 및 신규 획득 여부 확인
+            boolean isNewBadge = false; // 기본값 false
+            if (boardDto.getType() == 2 && boardDto.getContentId() != null) {
+                // [중요] checkAndGiveBadge의 리턴 타입을 boolean으로 변경해야 합니다.
+                isNewBadge = badgeService.checkAndGiveBadge(boardDto.getUserId(), boardDto.getContentId());
+            }
+
+            // 6. 결과 반환 (JSON 객체 생성)
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("isNewBadge", isNewBadge); // 프론트에서 이 값을 확인합니다.
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
 
         } catch (Exception e) {
             e.printStackTrace();

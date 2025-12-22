@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.enjoytrip.mapper.BadgeMapper">
+
+    <select id="findBadgeByRegion" parameterType="map" resultType="badgeDto">
+        SELECT badge_id, name, image, sido_code, gugun_code, type
+        FROM badges 
+        WHERE sido_code = #{sidoCode} 
+          AND gugun_code = #{gugunCode}
+    </select>
+
+    <select id="hasBadge" parameterType="map" resultType="int">
+        SELECT COUNT(*) 
+        FROM user_badges
+        WHERE user_id = #{userId} AND badge_id = #{badgeId}
+    </select>
+
+    <insert id="giveBadge" parameterType="map">
+        INSERT INTO user_badges (user_id, badge_id, get_date)
+        VALUES (#{userId}, #{badgeId}, NOW())
+    </insert>
+
+    <select id="countTotalGuguns" parameterType="int" resultType="int">
+        SELECT COUNT(*) 
+        FROM guguns 
+        WHERE sido_code = #{sidoCode}
+    </select>
+
+    <select id="countUserEarnedGuguns" parameterType="map" resultType="int">
+        SELECT COUNT(DISTINCT b.gugun_code)
+        FROM user_badges ub
+        JOIN badges b ON ub.badge_id = b.badge_id
+        WHERE ub.user_id = #{userId} 
+          AND b.sido_code = #{sidoCode} 
+          AND b.type = 'SI'
+    </select>
+
+    <select id="listMyBadges" parameterType="string" resultType="badgeDto">
+        SELECT b.badge_id, b.name, b.image, b.sido_code, b.gugun_code, b.type, ub.get_date
+        FROM user_badges ub
+        JOIN badges b ON ub.badge_id = b.badge_id
+        WHERE ub.user_id = #{userId}
+        ORDER BY ub.get_date DESC
+    </select>
+
+</mapper>
