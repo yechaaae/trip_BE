@@ -3,13 +3,16 @@
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.ssafy.enjoytrip.mapper.AiMapper">
-    <select id="getRandomRegion" resultType="map">
-        SELECT 
-            s.sido_name AS sido, 
-            g.gugun_name AS gugun
-        FROM sidos s
-        JOIN guguns g ON s.sido_code = g.sido_code
-        ORDER BY RAND() 
+    <select id="getRandomAttraction" resultType="map" parameterType="string">
+        SELECT
+        content_id AS contentId,
+        title,
+        addr1,
+        first_image1 AS image,
+        content_type_id AS contentTypeId
+        FROM attractions
+        WHERE first_image1 != ''
+        AND content_type_id = #{contentTypeId}  ORDER BY RAND()
         LIMIT 1
     </select>
 </mapper>

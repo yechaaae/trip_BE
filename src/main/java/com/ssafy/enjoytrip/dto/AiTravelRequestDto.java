@@ -8,4 +8,5 @@ public class AiTravelRequestDto {
     private String region;    // 예: 서울, 부산
     private String theme;     // 예: 맛집 탐방, 힐링, 액티비티
     private int days;         // 여행 기간
+    private String contentTypeId; // 12, 15, 32, 39 중 하나
 }
