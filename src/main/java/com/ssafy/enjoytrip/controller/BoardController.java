@@ -135,7 +135,7 @@ public class BoardController {
     // 3. 상세 조회
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardDto> detail(@PathVariable int boardId,
-                                           @RequestParam(value = "updateHit", required = false, defaultValue = "true") boolean updateHit,
+                                           @RequestParam(value = "updateHit", required = false, defaultValue = "false") boolean updateHit,
                                            HttpSession session) throws Exception {
         String userId = null;
         UserDto userDto = (UserDto) session.getAttribute("userInfo");
