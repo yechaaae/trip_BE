@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.enjoytrip.mapper.AiMapper">
+    <select id="getRandomRegion" resultType="map">
+        SELECT 
+            s.sido_name AS sido, 
+            g.gugun_name AS gugun
+        FROM sidos s
+        JOIN guguns g ON s.sido_code = g.sido_code
+        ORDER BY RAND() 
+        LIMIT 1
+    </select>
+</mapper>
