@@ -212,7 +212,7 @@
         u.nickname,
 
         a.title AS attractionTitle,
-        a.first_image AS attractionImg,
+        a.first_image1 AS attractionImg,
 
         (SELECT COUNT(*)
         FROM comments c

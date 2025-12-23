@@ -5,27 +5,69 @@
 <mapper namespace="com.ssafy.enjoytrip.mapper.AttractionMapper">
 
     <select id="getAttraction" parameterType="int" resultType="attractionDto">
-        SELECT 
-            no,
-            content_id      AS contentId,
-            title,
-            content_type_id AS contentTypeId,
-            
-            -- [중요] DB 컬럼 -> DTO 변수 매핑 --
-            area_code       AS sidoCode,
-            si_gun_gu_code  AS gugunCode,
-            
-            first_image1    AS firstImage,
-            first_image2    AS firstImage2,
-            latitude,
-            longitude,
-            tel,
-            addr1,
-            addr2,
-            homepage,
-            overview
-        FROM attractions
-        WHERE content_id = #{contentId}
-    </select>
+	SELECT
+	no,
+	content_id AS contentId,
+	title,
+	content_type_id AS contentTypeId,
 
+	-- [중요] DB 컬럼 -> DTO 변수 매핑 --
+	area_code AS sidoCode,
+	si_gun_gu_code AS gugunCode,
+
+	first_image1 AS firstImage,
+	first_image2 AS firstImage2,
+	latitude,
+	longitude,
+	tel,
+	addr1,
+	addr2,
+	homepage,
+	overview
+	FROM attractions
+	WHERE content_id = #{contentId}
+    </select>
+	<select id="listGugun" parameterType="int" resultType="map">
+    SELECT gugun_code as code, gugun_name as name 
+    FROM guguns 
+    WHERE sido_code = #{sidoCode}
+</select>
+
+<select id="searchLocalAttractions" parameterType="map" resultType="attractionDto">
+    SELECT 
+        content_id AS contentid,      title,
+        addr1,
+        first_image1 AS firstImage,   latitude,
+        longitude
+        <if test="userLat != null and userLon != null">
+            , (6371 * acos(cos(radians(#{userLat})) * cos(radians(latitude)) 
+            * cos(radians(longitude) - radians(#{userLon})) 
+            + sin(radians(#{userLat})) * sin(radians(latitude)))) AS distance
+        </if>
+    FROM attractions
+    <where>
+        <if test="areaCode != null and areaCode != 0"> AND area_code = #{areaCode} </if>
+        <if test="gugunCode != null and gugunCode != 0"> AND si_gun_gu_code = #{gugunCode} </if>
+        <if test="keyword != null and keyword != ''"> AND title LIKE CONCAT('%', #{keyword}, '%') </if>
+        <if test="contentTypeId != null and contentTypeId != 0"> AND content_type_id = #{contentTypeId} </if>
+    </where>
+    ORDER BY 
+    <choose>
+        <when test="userLat != null and userLon != null and sort == 'distance'"> distance ASC </when>
+        <otherwise> title ASC </otherwise>
+    </choose>
+    LIMIT #{size} OFFSET #{offset}
+</select>
+
+<select id="getLocalSearchCount" parameterType="map" resultType="int">
+    SELECT COUNT(*) FROM attractions
+    <where>
+        <if test="keyword != null and keyword != ''">
+            AND title LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="areaCode != null and areaCode != '0'">
+            AND area_code = #{areaCode}
+        </if>
+    </where>
+</select>
 </mapper>

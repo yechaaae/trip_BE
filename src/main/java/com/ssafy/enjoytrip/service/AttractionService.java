@@ -1,5 +1,8 @@
 package com.ssafy.enjoytrip.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.ssafy.enjoytrip.dto.AttractionDto;
 import com.ssafy.enjoytrip.dto.PageResponse;
 
@@ -120,8 +123,12 @@ public interface AttractionService {
             String mapY
     ) throws Exception;
     
-    
-   
+ // 구군 목록 조회
+    List<Map<String, Object>> getGugunList(int sidoCode);
+
+    // 필터 및 위치 정보를 포함한 통합 로컬 검색
+    Map<String, Object> getLocalSearchResult(Map<String, Object> params);
+
 }
 
 /* [참고] 지역 코드(areaCode) 매핑 테이블
