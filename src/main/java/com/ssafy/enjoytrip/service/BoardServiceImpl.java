@@ -39,9 +39,12 @@ public class BoardServiceImpl implements BoardService {
     		boardMapper.updateHit(boardId);
     	}
         
+    	Map<String, Object> map = new HashMap<>();
+        map.put("boardId", boardId);
+        map.put("userId", userId); // 이 값이 들어가야 XML의 #{userId}가 채워집니다.
         
         // 그 다음 글 내용을 가져온다.
-        return boardMapper.getArticle(boardId, userId);
+        return boardMapper.getArticle(map);
     }
 
     @Override

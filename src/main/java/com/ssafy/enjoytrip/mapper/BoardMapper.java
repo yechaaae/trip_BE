@@ -19,7 +19,7 @@ public interface BoardMapper {
     List<BoardDto> listArticle(Map<String, Object> map) throws SQLException;
 
     // 3. 글 상세 조회 (내용 가져오기)
-    BoardDto getArticle(@Param("boardId") int boardId, @Param("userId") String userId) throws SQLException;
+    BoardDto getArticle(Map<String, Object> map) throws SQLException;
 
     // 4. 조회수 증가 (상세 조회 시 호출)
     void updateHit(int boardId) throws SQLException;
