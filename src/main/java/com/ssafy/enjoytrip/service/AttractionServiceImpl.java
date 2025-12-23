@@ -1,16 +1,19 @@
 package com.ssafy.enjoytrip.service;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.enjoytrip.dto.AttractionDto;
 import com.ssafy.enjoytrip.dto.PageResponse;
-
+import com.ssafy.enjoytrip.mapper.AttractionMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AttractionServiceImpl implements AttractionService {
 	
-	
+	private final AttractionMapper attractionMapper;
 	
 	@Value("${TOUR_CATEGORY_CODE_URL}")
 	private String tourCategoryCodeUrl;
@@ -129,18 +132,40 @@ public class AttractionServiceImpl implements AttractionService {
     // 3. 공통 상세 정보 조회
     @Override
     public String getDetailCommon(String contentId) throws Exception {
+        // 1. DB에서 먼저 조회
+        AttractionDto attraction = attractionMapper.getAttraction(Integer.parseInt(contentId));
+        
+        // 2. DB에 데이터가 있다면 API 결과와 유사한 JSON 구조로 직접 생성
+        if (attraction != null) {
+            // 프론트엔드에서 쓰기 편하도록 camelCase를 소문자로 매핑한 JSON 생성
+            return String.format(
+                "{\"response\":{\"body\":{\"items\":{\"item\":[{" +
+                "\"contentid\":\"%s\",\"title\":\"%s\",\"addr1\":\"%s\",\"tel\":\"%s\"," +
+                "\"firstimage\":\"%s\",\"mapx\":\"%s\",\"mapy\":\"%s\",\"overview\":\"%s\",\"homepage\":\"%s\"" +
+                "}]}}}}",
+                attraction.getContentId(), attraction.getTitle(), attraction.getAddr1(), 
+                attraction.getTel() != null ? attraction.getTel() : "",
+                attraction.getFirstImage() != null ? attraction.getFirstImage() : "",
+                attraction.getLongitude(), attraction.getLatitude(),
+                attraction.getOverview() != null ? attraction.getOverview().replace("\"", "\\\"") : "",
+                attraction.getHomepage() != null ? attraction.getHomepage().replace("\"", "\\\"") : ""
+            );
+        }
+
+        // 3. DB에 없으면 기존 외부 API 호출
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(tourDetailCommonUrl)
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("MobileOS", "WEB")
                 .queryParam("MobileApp", "EnjoyTrip")
                 .queryParam("_type", "json")
-                .queryParam("contentId", contentId);
-                // ★ 중요: 아래 YN 파라미터가 없으면 좌표와 설명이 안 옵니다!
-                
+                .queryParam("contentId", contentId)
+                .queryParam("defaultYN", "Y")
+                .queryParam("firstImageYN", "Y")
+                .queryParam("addrinfoYN", "Y")
+                .queryParam("mapinfoYN", "Y")
+                .queryParam("overviewYN", "Y");
 
         URI uri = builder.build(true).toUri();
-        log.debug("TourAPI [detailCommon] 요청 URL: {}", uri);
-
         return new RestTemplate().getForObject(uri, String.class);
     }
 
@@ -507,7 +532,36 @@ public class AttractionServiceImpl implements AttractionService {
 	
 	
 	
+	
+	@Override
+    public List<Map<String, Object>> getGugunList(int sidoCode) {
+        return attractionMapper.listGugun(sidoCode);
+    }
 
+    // 2. 통합 로컬 검색 구현 (필터 + 위치 + 정렬)
+    @Override
+    public Map<String, Object> getLocalSearchResult(Map<String, Object> params) {
+        int pageNo = Integer.parseInt(String.valueOf(params.getOrDefault("pageNo", "1")));
+        int size = 20;
+        
+        // MyBatis 전달을 위한 offset 계산 및 추가
+        params.put("offset", (pageNo - 1) * size);
+        params.put("size", size);
+
+        // 검색어(keyword) 처리
+        String keyword = (String) params.get("keyword");
+        if (keyword != null && keyword.trim().isEmpty()) {
+            params.put("keyword", null);
+        }
+
+        List<AttractionDto> list = attractionMapper.searchLocalAttractions(params);
+        int totalCount = attractionMapper.getLocalSearchCount(params);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("items", list);
+        result.put("totalCount", totalCount);
+        return result;
+    }
 	
 
 	

@@ -1,6 +1,8 @@
 package com.ssafy.enjoytrip.controller;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,17 +37,42 @@ public class AttractionRestController {
 	// 1. 지역 기반 관광지 목록 조회
 	
 	@GetMapping("/list")
-	public ResponseEntity<?> getAreaBasedList(
-	        @RequestParam(value= "areaCode", required = false) String areaCode,
-	        @RequestParam(value = "contentTypeId", required = false) String contentTypeId,
-	        @RequestParam(value = "pageNo", defaultValue = "1") String pageNo) { // ★ pageNo 추가
-
-	    log.info("[list] 목록 조회 - area: {}, type: {}, page: {}", areaCode, contentTypeId, pageNo);
+	public ResponseEntity<?> getList(@RequestParam Map<String, Object> params) {
+	    String keyword = (String) params.get("keyword");
 	    try {
-	        // 서비스에 pageNo도 같이 전달!
-	        String result = attractionService.getAreaBasedList(areaCode, contentTypeId, pageNo);
-	        return makeResponse(result);
-	    } catch(Exception e) {
+	        if ((keyword != null && !keyword.trim().isEmpty()) || 
+	            (params.get("gugunCode") != null && !params.get("gugunCode").equals("0")) ||
+	            "distance".equals(params.get("sort"))) {
+	            
+	            // DB 검색 결과 가져오기
+	            Map<String, Object> localResult = attractionService.getLocalSearchResult(params);
+	            
+	            // ★ 외부 API와 동일한 구조로 Wrapping (프론트 원복 상태 대응)
+	            Map<String, Object> wrappedResponse = new HashMap<>();
+	            Map<String, Object> response = new HashMap<>();
+	            Map<String, Object> body = new HashMap<>();
+	            Map<String, Object> items = new HashMap<>();
+	            
+	            items.put("item", localResult.get("items"));
+	            body.put("items", items);
+	            body.put("totalCount", localResult.get("totalCount"));
+	            body.put("numOfRows", params.getOrDefault("size", 20));
+	            body.put("pageNo", params.getOrDefault("pageNo", 1));
+	            
+	            response.put("body", body);
+	            wrappedResponse.put("response", response);
+	            
+	            return ResponseEntity.ok(wrappedResponse);
+	        } else {
+	            // 기존 외부 API 유지
+	            String result = attractionService.getAreaBasedList(
+	                (String)params.get("areaCode"), 
+	                (String)params.get("contentTypeId"), 
+	                (String)params.getOrDefault("pageNo", "1")
+	            );
+	            return makeResponse(result);
+	        }
+	    } catch (Exception e) {
 	        return exceptionHandling(e);
 	    }
 	}
@@ -279,7 +306,11 @@ public class AttractionRestController {
 	        return exceptionHandling(e);
 	    }
 	}
-	
+	// 2. 구군 목록 조회 API 추가
+    @GetMapping("/gugun/{sidoCode}")
+    public ResponseEntity<?> getGugunList(@PathVariable("sidoCode") int sidoCode) {
+        return ResponseEntity.ok(attractionService.getGugunList(sidoCode));
+    }
 	
 
 	// --- Helper Method ---
